@@ -15,6 +15,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 public class Brute_force {
     // If there is only one letter for password!
@@ -37,22 +38,31 @@ public class Brute_force {
     public static int NUM_password = 2;
     // The cycle counting
     public static int Times = 0;
-    // The random password, for brute force
-    public static String[] for_select = { "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o",
+    // All password characters
+    public static String[] All_password_characters = { "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m",
+            "n", "o",
             "p", "q", "r",
             "s", "t", "u", "v", "w", "x", "y", "z",
             "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U",
             "V", "W", "X", "Y", "Z",
             "0", "1", "2", "3", "4", "5", "6", "7", "8", "9",
-            "_", "-", "!", "@", "#", "$", "%", "^", "&", "*", "+" };
-
-    public static String[] initialization_str(String[] strs, int numOfpassword) {
-        String[] hand_made = new String[numOfpassword];
-        for (int i = 0; i < numOfpassword; i++) {
-            hand_made[i] = strs[0];
-        }
-        return hand_made;
-    }
+            "!", "#", "$", "%", " &", "(", ")", "*", "+", ",", "-", ".", "/", ":", ";", "<", "=", ">", "?",
+            "@", "[", "]", "^", "_", "`", "{", "|", "}", "~" };
+    // All lowercase letters
+    public static String[] All_lowercase_characters = { "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m",
+            "n", "o",
+            "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z" };
+    // All capital letters
+    public static String[] All_capital_characters = { "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M",
+            "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z" };
+    // All characters
+    public static String[] All_characters = { "!", "#", "$", "%", " &", "(", ")", "*", "+", ",", "-", ".", "/", ":",
+            ";", "<", "=", ">", "?",
+            "@", "[", "]", "^", "_", "`", "{", "|", "}", "~" };
+    // Length of generated key
+    public static int n = 3;
+    // Save the generated key
+    public static String[] temp_save_CH;
 
     public static String RandomStr(String[] strs, int numOfpassword) {
         String feedBack = "";
@@ -63,54 +73,36 @@ public class Brute_force {
         return feedBack;
     }
 
-    public static String listALLhacker_password(List<String> candicate, String prefix) {
-        System.out.printf("\n Cauculating! \n");
-        for (int i = 0; i < candicate.size(); i++) {
-            List<String> tempList = new LinkedList<String>(candicate);
-            String tempString = (String) tempList.remove(i);
-            listALLhacker_password(tempList, prefix + tempString);
+    public static Set getPermutation_str(String str) {
+        Set permutations = new HashSet();
+        if (str == null) {
+            return null;
+        } else if (str.length() == 0) {
+            permutations.add("");
+            return permutations;
         }
-        return prefix;
-    }
-
-    public static boolean permutation_collision(String[] strs, String targetCipher, boolean Ifeqals) throws Exception {
-        System.out.printf("\n\n Generating all possible! \n\n");
-        String hacker_password = listALLhacker_password(Arrays.asList(for_select), "");
-        String[] hacker_arr = hacker_password.split(",");
-        for (int i = 0; i < hacker_password.length(); i++) {
-            String forceCipher = Utils.toHex(generateCipher(salt, count, plaintext, hacker_arr[i].toString()));
-            Ifeqals = targetCipher.equals(forceCipher);
-            breaking_point = hacker_arr[i].toString();
-            Times++;
-            if (Ifeqals) {
-                break;
+        char first = str.charAt(0);
+        String sub = str.substring(1);
+        Set words = getPermutation_str(sub);
+        for (String strNew : (Set<String>) words) {
+            for (int i = 0; i <= strNew.length(); i++) {
+                permutations.add(strNew.substring(0, i) + first + strNew.substring(i));
             }
         }
-        return Ifeqals;
+        return permutations;
     }
 
-    public static List<String> Sorting_password = new ArrayList<>();
-
-    public static void permutation_num(String[] strs, int start, int end) {
-        if (start == end) {
-            Sorting_password.add(join(strs, "", 0, end));
-        } else {
-            for (int i = start; i <= strs.length; i++) {
-                String temp = strs[start];
-                strs[i] = temp;
-                permutation_num(strs, start + 1, end);
-                strs[i] = strs[start];
-                strs[start] = temp;
+    public static String listTostring(List<String> list, char separator) {
+        StringBuilder new_string = new StringBuilder();
+        for (int i = 0; i < list.size(); i++) {
+            if (i == list.size() - 1) {
+                new_string.append(list.get(i));
+            } else {
+                new_string.append(list.get(i));
+                new_string.append(separator);
             }
         }
-    }
-
-    public static String join(String[] arr, String spor, int begain, int end) {
-        StringBuilder temp = new StringBuilder();
-        for (int i = begain; i < end; i++) {
-            temp.append(arr[i]).append(spor);
-        }
-        return temp.toString();
+        return new_string.toString();
     }
 
     public static byte[] generateCipher(byte[] C_salt, int C_count, String C_plaintext, String C_password)
@@ -141,19 +133,52 @@ public class Brute_force {
     }
 
     public static void main(String[] args) throws Exception {
-        real_password = RandomStr(for_select, NUM_password);
+        // Useful libraries: All_password_characters, All_lowercase_characters,
+        // All_capital_characters, All_capital_characters, All_characters
+        real_password = RandomStr(All_password_characters, NUM_password);
         System.out.printf("\n The generate password is: %s", real_password);
-
         String targetCipher = Utils.toHex(generateCipher(salt, count, plaintext, real_password));
         System.out.printf("\n The cipher is: %s", targetCipher);
-        String initialization_made[] = initialization_str(for_select, NUM_password);
 
-        permutation_num(for_select, 0, NUM_password);
-        System.out.printf("\n All sorting:\n", Times);
-        System.out.println(Sorting_password);
+        // Starting point for timekeeping
+        long startTime = System.nanoTime();
 
-        // System.out.printf("\n The number of cycle: %d", Times);
-        // System.out.printf("\n The hacker successfully try: %s", breaking_point);
+        // Logic:
+        // 1. Select the library for generating all passwords
+        // 2. Use the key generated by all passwords to compare with the original key
+        System.out.printf("\n\n Generating all possible! \n\n");
+        for (int i = 1; i < 26; i++) {
+            
+        }
+        permutation_num(All_password_characters, 0, Alphabet_test.length);
+        String hacker_string = listTostring(hacker_password, ',');
+        String[] hacker_arr = hacker_string.split(",");
+
+        System.out.printf("\n Possible: %s \n", hacker_arr);
+        // permutation_num(hacker_arr, 0, hacker_arr.length);
+
+        boolean Ifeqals;
+        for (int i = 0; i < hacker_string.length(); i++) {
+            String forceCipher = Utils.toHex(generateCipher(salt, count, plaintext, hacker_arr[i]));
+            Ifeqals = targetCipher.equals(forceCipher);
+            breaking_point = hacker_arr[i].toString();
+            Times++;
+            if (Ifeqals) {
+                break;
+            }
+        }
+        long endTime = System.nanoTime();
+        long timeElapsed = endTime - startTime;
+        // permutation_num(Alphabet, 0, NUM_password);
+        // System.out.printf("\n All sorting:\n", Times);
+        // System.out.println(Sorting_password);
+
+        System.out.println("\n Execution time in nanoseconds: " + timeElapsed);
+        System.out.println("\n Execution time in milliseconds: " + timeElapsed / 1000000);
+        System.out.println("\n Execution time in seconds: " + timeElapsed / 1000000000);
+
+        System.out.printf("\n The number of cycle: %d \n", Times);
+        System.out.printf("\n The hacker successfully try: %s \n", breaking_point);
     }
 
 }
